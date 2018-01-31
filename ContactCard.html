@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact Cards</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+
+        function addCardFunctions(){
+            $(document).on("click", ".card", function(){
+                var $contactName=$(this).children('#contactName');
+                if($contactName.is(':visible')){
+                    $contactName.hide().siblings('#contactDescription').show();
+                }else{
+                    $contactName.show().siblings('#contactDescription').hide();
+                }
+            });
+        }
+
+        $(document).ready(function(){
+            $('input[type=submit]').click(function(){
+                var $form=$(this).parents('form');
+                var newCard='<div class="card"><div id="contactName"><h1>';
+                newCard+=$form.find('#first_name').val()+' '+$form.find('#last_name').val();
+                newCard+='</h1><p>Click for description!</p></div><div id="contactDescription"><p>';
+                newCard+=$form.find('#description').val();
+                newCard+='</p></div></div>';
+
+                    console.log($form.find('#description'));
+
+                $('#contactCards').append(newCard);
+                
+                $('#reset').trigger('click');
+
+                $('#first_name').focus();
+            });
+
+            $('form').submit(function(){
+                return false;
+            });
+
+            $('#first_name').focus();
+
+            addCardFunctions();
+        });
+
+    </script>
+</head>
+<body>
+    <div id="wrapper">
+        <div id="addUser">
+            <h1>Add User</h1>
+            <hr>
+            <form autocomplete="on">
+                <label>
+                    First Name:
+                    <input type="text" name="first_name" id="first_name" placeholder="Enter First Name" />
+                </label>
+                <label>
+                    Last Name:
+                    <input type="text" name="last_name" id="last_name" placeholder="Enter Last Name" />
+                </label>
+                <label>
+                    Description:
+                    <textarea name="description" id="description" rows="5" cols="40"></textarea>
+                </label>
+                <div>
+                    <input id="submit" type="submit" value="Add User" />
+                    <input id="reset" type="reset" />
+                </div>
+            </form>
+        </div>
+        <div id="contactCards">
+            
+        </div>
+    </div>
+</body>
+</html>

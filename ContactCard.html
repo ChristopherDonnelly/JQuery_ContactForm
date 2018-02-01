@@ -5,43 +5,97 @@
     <title>Contact Cards</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
 
+        // Add Card Functions adds functionality to dynamically created Cards
+        // Clicking on a Card toggles between the Contact Name and Descriptions
         function addCardFunctions(){
             $(document).on("click", ".card", function(){
                 var $contactName=$(this).children('#contactName');
+                var $contactDesc=$(this).children('#contactDescription');
+                var options = { percent: 1 };
+
                 if($contactName.is(':visible')){
-                    $contactName.hide().siblings('#contactDescription').show();
+                    $contactName.toggle('scale', options, function(){
+                        $contactDesc.toggle('scale', options);
+                    });
                 }else{
-                    $contactName.show().siblings('#contactDescription').hide();
+                    $contactDesc.toggle('scale', options, function(){
+                        $contactName.toggle('scale', options);
+                    });
                 }
+            }).on("click", ".close", function(event){
+                event.stopPropagation();
+                
+                $(this).parents('#contactName').fadeOut();
+                $(this).parents(".card").addClass('hide_me', 500, function(){
+                    $(this).remove();
+                });
+
             });
         }
 
         $(document).ready(function(){
+
+            // When Submit is clicked detect if all fields have been filled in correctly, if so create new card
+            // If fields are not filled in correctly then alert the user, focus on empty field and add class required
             $('input[type=submit]').click(function(){
                 var $form=$(this).parents('form');
-                var newCard='<div class="card"><div id="contactName"><h1>';
-                newCard+=$form.find('#first_name').val()+' '+$form.find('#last_name').val();
-                newCard+='</h1><p>Click for description!</p></div><div id="contactDescription"><p>';
-                newCard+=$form.find('#description').val();
-                newCard+='</p></div></div>';
+                var $first=$form.find('#first_name');
+                var $last=$form.find('#last_name');
+                var $des=$form.find('#description');
 
-                    console.log($form.find('#description'));
+                var firstName=$first.val();
+                var lastName=$last.val();
+                var description=$des.val();
 
-                $('#contactCards').append(newCard);
-                
-                $('#reset').trigger('click');
+                if($.trim(firstName)!=""&&$.trim(lastName)!=""&&$.trim(description)!=""){
+                    var newCard='<div class="card hide_me"><div id="contactName"><h1>'+firstName+' '+lastName;
+                    newCard+='<div class="close">x</div></h1><p>Click for description!</p></div>';
+                    newCard+='<div id="contactDescription"><p>'+description+'</p></div></div>';
 
-                $('#first_name').focus();
+                    $('#contactCards').append(newCard).find('.hide_me').removeClass('hide_me',500);
+
+                    $('#reset').trigger('click').select();
+
+                    $first.focus();
+                }else if($.trim(firstName)==""){
+                    $first.parent().addClass('required').focus();
+                    $("#addUser").effect('shake');
+                }else if($.trim(lastName)==""){
+                    $first.parent().removeClass('required');
+                    $last.parent().addClass('required').focus();
+                    $("#addUser").effect('shake');
+                }else if($.trim(description)==""){
+                    $first.parent().removeClass('required');
+                    $last.parent().removeClass('required');
+                    $des.parent().addClass('required').focus();
+                    $("#addUser").effect('shake');
+                }
             });
 
+            // Prevent form from submitting
+            // When form is reset remove required class from all labels
             $('form').submit(function(){
                 return false;
+            }).bind("reset", function() {
+                $('label').removeClass('required');
             });
 
-            $('#first_name').focus();
+            // When Add User inputs are focused into check if previous has values and remove required class from label
+            $('#first_name, #last_name, #description').focusin(function(){
+                var $prevLabel=$(this).parent("label").prev();
+                if($.trim($prevLabel.children('input').val())!=""){
+                    console.log($.trim($prevLabel.prev().children('input').val()));
+                    $prevLabel.removeClass('required');
+                }
+            });
 
+            // Focus on first name input field on document ready
+            $('#first_name').focus();
+            
+            // Add functionality to any cards that may be initialized at page load
             addCardFunctions();
         });
 
@@ -72,7 +126,6 @@
             </form>
         </div>
         <div id="contactCards">
-            
         </div>
     </div>
 </body>
